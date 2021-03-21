@@ -193,22 +193,25 @@ def find_most_common_cooccurring_hashtag(tweet_data, hashtag_to_ignore):
 
     tweet_list = []
     hashtag_words = []
+    hashtag_lower_word = []
     tweets = tweet_data['statuses']
+    hashtag_to_ignore = hashtag_to_ignore.lower()
 
     for t in tweets:
         each_tweet = t['text']
         tweet_list.append(each_tweet)
-
+    
     for word in tweet_list:
         hashtag_words.append(re.findall(r'#[A-Za-z0-9]*', word))
 
     hashtag_words = list(chain(*hashtag_words))
-    hashtag_words = [i for i in hashtag_words if i != hashtag_to_ignore]
-    count = Counter(hashtag_words)
+    hashtag_lower_word = [i.lower() for i in hashtag_words]
+    hashtag_lower_word = [i for i in hashtag_lower_word if i != hashtag_to_ignore]
+    count = Counter(hashtag_lower_word)
     most_common_cooccurring_hashtag = count.most_common()[0][0]
     return most_common_cooccurring_hashtag
         
-    
+
     ''' Hint: In case you're confused about the hashtag_to_ignore 
     parameter, we want to ignore the hashtag we queried because it would 
     definitely be the most occurring hashtag, and we're trying to find 
@@ -234,5 +237,4 @@ if __name__ == "__main__":
 
     tweet_data = make_request_with_cache(baseurl, hashtag, count)
     most_common_cooccurring_hashtag = find_most_common_cooccurring_hashtag(tweet_data, hashtag)
-    
     print("The most commonly cooccurring hashtag with {} is {}.".format(hashtag, most_common_cooccurring_hashtag))
