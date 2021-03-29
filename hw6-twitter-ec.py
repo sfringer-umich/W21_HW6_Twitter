@@ -158,13 +158,14 @@ def make_request_with_cache(baseurl, hashtag, count):
         the results of the query as a dictionary loaded from cache
         JSON
     '''
+    CACHE_DICT = open_cache()
     request_val = {'q': hashtag, 'count': count}
     request_key = construct_unique_key(baseurl, request_val)
     if request_key in CACHE_DICT.keys():
-        print("fetching cached data", request_key)
+        print("fetching cached data")
         return CACHE_DICT[request_key]
     else:
-        print("making new request", request_key)
+        print("making new request")
         CACHE_DICT[request_key] = make_request(baseurl, request_val)
         save_cache(CACHE_DICT)
         return CACHE_DICT[request_key]
@@ -195,6 +196,7 @@ def find_most_common_cooccurring_hashtag(tweet_data, hashtag_to_ignore):
     hashtag_words = []
     hashtag_lower_word = []
     tweets = tweet_data['statuses']
+    ignore_hashtag = "#"
 
     for t in tweets:
         each_tweet = t['text']
@@ -206,11 +208,14 @@ def find_most_common_cooccurring_hashtag(tweet_data, hashtag_to_ignore):
     hashtag_words = list(chain(*hashtag_words))
     hashtag_lower_word = [i.lower() for i in hashtag_words]
     hashtag_lower_word = [i for i in hashtag_lower_word if i != hashtag_to_ignore]
+    hashtag_lower_word = [i for i in hashtag_lower_word if i != ignore_hashtag]
     count = Counter(hashtag_lower_word)
     three_most_common = count.most_common()[:3]
     most_common_cooccurring_hashtag = []
     for i in three_most_common:
-        most_common_cooccurring_hashtag.append(i[0])
+        word = (i[0])
+        word = word[1:]
+        most_common_cooccurring_hashtag.append(word)
     
     return most_common_cooccurring_hashtag
         
@@ -248,8 +253,6 @@ if __name__ == "__main__":
     if not access_token or not access_token_secret:
         print("You need to fill in ACCESS_TOKEN and ACCESS_TOKEN_SECRET in secret_data.py.")
         exit()
-
-    CACHE_DICT = open_cache()
 
     while True:
         user_input = str(input("Enter a hashtag that you want to search, or \'exit' to quit: "))
